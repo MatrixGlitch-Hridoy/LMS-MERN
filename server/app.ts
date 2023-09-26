@@ -29,8 +29,8 @@ app.get(
     };
     try {
       res.send(healthcheck);
-    } catch (error) {
-      healthcheck.message = error;
+    } catch (error: any) {
+      healthcheck.message = error.message;
       res.status(503).send();
     }
   }
