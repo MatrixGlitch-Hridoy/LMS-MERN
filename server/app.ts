@@ -4,6 +4,7 @@ export const app = express();
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import ErrorMiddleWare from "./middlewares/error";
+import { router } from "./routes";
 
 // Body Parser
 app.use(express.json({ limit: "50mb" }));
@@ -17,6 +18,9 @@ app.use(
     origin: process.env.ORIGIN,
   })
 );
+
+// Routes
+app.use(router);
 
 // Health Check
 app.get(
