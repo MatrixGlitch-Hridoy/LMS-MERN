@@ -3,6 +3,7 @@ require("dotenv").config();
 export const app = express();
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import ErrorMiddleWare from "./middlewares/error";
 
 // Body Parser
 app.use(express.json({ limit: "50mb" }));
@@ -41,3 +42,5 @@ app.all("*", (req: Request, res: Response, next: NextFunction) => {
   error.statusCode = 404;
   next(error);
 });
+
+app.use(ErrorMiddleWare);
