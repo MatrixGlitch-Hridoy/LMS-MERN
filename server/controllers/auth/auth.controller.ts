@@ -1,11 +1,15 @@
 import { NextFunction, Request, Response } from "express";
-import ejs from "ejs";
 import catchAsyncError from "../../middlewares/catch-async-errors";
-import { isEmailExitsService } from "../../services/auth/auth.service";
+import {
+  isEmailExitsService,
+  registerUserService,
+} from "../../services/auth/auth.service";
 import ErrorHandler from "../../utils/Error-handler";
 import { IRegisterUser } from "../../types/auth.type";
-import { createActivationToken } from "../../utils/utility-functions";
-import path from "path";
+import {
+  createActivationToken,
+  verifyToken,
+} from "../../utils/utility-functions";
 import sendMail from "../../utils/sendMail";
 
 export const authController = {
@@ -31,11 +35,7 @@ export const authController = {
           },
           activationCode: activationToken.activationCode,
         };
-
-        // const html = await ejs.renderFile(
-        //   path.join(__dirname, "../../mails/activation-mail.ejs"),
-        //   data
-        // );
+        // Sending Mail
         await sendMail({
           email: user.email,
           subject: "Activate your account",
@@ -46,6 +46,26 @@ export const authController = {
           success: true,
           message: `Please check your email: ${user.email} to activate your account`,
           activationToken: activationToken.token,
+        });
+      } catch (error: any) {
+        return next(new ErrorHandler(error.message, 400));
+      }
+    }
+  ),
+  activateUser: catchAsyncError(
+    async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const { token, activation_code } = req.body;
+        const userInfo = verifyToken(token);
+        if (userInfo.activationCode !== activation_code) {
+          return next(new ErrorHandler("Invalid activation code", 400));
+        }
+        const { name, email, password } = userInfo.user;
+        const user = await registerUserService(name, email, password);
+        res.status(201).json({
+          success: true,
+          message: "User Created",
+          user,
         });
       } catch (error: any) {
         return next(new ErrorHandler(error.message, 400));

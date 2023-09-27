@@ -12,9 +12,17 @@ export const createActivationToken = (
     },
     process.env.ACTIVATION_SECRET as Secret,
     {
-      expiresIn: "5m",
+      expiresIn: "5d",
     }
   );
 
   return { token, activationCode };
+};
+
+export const verifyToken = (token: string) => {
+  const userInfo = jwt.verify(
+    token,
+    process.env.ACTIVATION_SECRET as Secret
+  ) as { user: IRegisterUser; activationCode: string };
+  return userInfo;
 };

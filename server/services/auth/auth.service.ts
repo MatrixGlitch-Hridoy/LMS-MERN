@@ -6,3 +6,16 @@ export const isEmailExitsService = async (email: string) => {
   const user = await userModel.findOne({ email });
   return !!user;
 };
+
+export const registerUserService = async (
+  name: string,
+  email: string,
+  password: string
+) => {
+  const user = await userModel.create({
+    name,
+    email,
+    password,
+  });
+  return user;
+};
